@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 
 @Controller
 @RequestMapping("/employees")
@@ -44,7 +46,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/save")
-    public String saveEmployee(@ModelAttribute("employee") Employee employee) {
+    public String saveEmployee(@Valid @ModelAttribute("employee") Employee employee) {
         employeeService.save(employee);
 
         return "redirect:/employees/list";
@@ -59,7 +61,7 @@ public class EmployeeController {
         return "employees/employee-form";
     }
 
-    @GetMapping("/delete")
+    @PostMapping("/delete")
     public String deleteEmployee(@RequestParam("employeeId") int theId) {
         employeeService.deleteById(theId);
         return "redirect:/employees/list";

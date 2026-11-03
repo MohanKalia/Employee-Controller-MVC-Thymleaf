@@ -1,5 +1,7 @@
 package com.luv2code.springboot.ThymeleafMVC.entity;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,12 +14,17 @@ public class Employee {
     @Column(name="id")
     private int id;
 
+    @NotBlank(message = "First name is required")
     @Column(name="first_name")
     private String firstName;
 
+
+    @NotBlank(message = "Last name is required")
     @Column(name="last_name")
     private String lastName;
 
+
+    @NotBlank(message = "Email is required")
     @Column(name="email")
     private String email;
 
