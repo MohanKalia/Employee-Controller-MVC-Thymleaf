@@ -1,7 +1,7 @@
-package com.luv2code.springboot.ThymeleafMVC.service;
+package com.example.springboot.ThymeleafMVC.service;
 
-import com.luv2code.springboot.ThymeleafMVC.dao.EmployeeRepository;
-import com.luv2code.springboot.ThymeleafMVC.entity.Employee;
+import com.example.springboot.ThymeleafMVC.dao.EmployeeRepository;
+import com.example.springboot.ThymeleafMVC.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

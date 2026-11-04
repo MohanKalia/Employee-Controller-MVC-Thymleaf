@@ -1,6 +1,6 @@
-package com.luv2code.springboot.ThymeleafMVC.dao;
+package com.example.springboot.ThymeleafMVC.dao;
 
-import com.luv2code.springboot.ThymeleafMVC.entity.Employee;
+import com.example.springboot.ThymeleafMVC.entity.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

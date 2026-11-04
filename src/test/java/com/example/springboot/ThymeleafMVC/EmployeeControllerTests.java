@@ -1,8 +1,8 @@
-package com.luv2code.springboot.ThymeleafMVC;
+package com.example.springboot.ThymeleafMVC;
 
-import com.luv2code.springboot.ThymeleafMVC.controller.EmployeeController;
-import com.luv2code.springboot.ThymeleafMVC.entity.Employee;
-import com.luv2code.springboot.ThymeleafMVC.service.EmployeeService;
+import com.example.springboot.ThymeleafMVC.controller.EmployeeController;
+import com.example.springboot.ThymeleafMVC.entity.Employee;
+import com.example.springboot.ThymeleafMVC.service.EmployeeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.validation.BindingResult;
