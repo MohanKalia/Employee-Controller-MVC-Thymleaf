@@ -90,13 +90,13 @@ Open the application:
 
 ## Testing
 
-Run the test suite:
+Run the tests:
 
 ```bash
 ./mvnw test
 ```
 
-The application test context uses the configured database, so ensure MySQL and the required environment variables are available.
+The employee validation tests run without a database. The application context test starts Spring Boot and uses the configured MySQL database, so MySQL and the environment variables above need to be available when running the full test suite.
 
 ## Project Structure
 

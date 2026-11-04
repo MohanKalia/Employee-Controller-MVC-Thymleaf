@@ -46,7 +46,12 @@ public class EmployeeController {
     }
 
     @PostMapping("/save")
-    public String saveEmployee(@Valid @ModelAttribute("employee") Employee employee) {
+    public String saveEmployee(@Valid @ModelAttribute("employee") Employee employee,
+                               BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "employees/employee-form";
+        }
+
         employeeService.save(employee);
 
         return "redirect:/employees/list";

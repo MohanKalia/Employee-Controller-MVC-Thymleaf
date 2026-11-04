@@ -25,6 +25,7 @@ public class Employee {
 
 
     @NotBlank(message = "Email is required")
+    @Email(message = "Please enter a valid email address")
     @Column(name="email")
     private String email;
 
