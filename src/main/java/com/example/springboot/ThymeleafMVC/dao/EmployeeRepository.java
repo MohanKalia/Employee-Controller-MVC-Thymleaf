@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
-    // that's it ... no need to write any code LOL!
-
-    public List<Employee> findAllByOrderByLastNameAsc();
+    List<Employee> findAllByOrderByLastNameAsc();
 
 }

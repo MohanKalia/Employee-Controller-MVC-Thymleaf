@@ -8,31 +8,25 @@ import jakarta.persistence.*;
 @Table(name="employee")
 public class Employee {
 
-    // define fields
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
+    @Column(name = "id")
     private int id;
 
     @NotBlank(message = "First name is required")
-    @Column(name="first_name")
+    @Column(name = "first_name")
     private String firstName;
 
-
     @NotBlank(message = "Last name is required")
-    @Column(name="last_name")
+    @Column(name = "last_name")
     private String lastName;
-
 
     @NotBlank(message = "Email is required")
     @Email(message = "Please enter a valid email address")
-    @Column(name="email")
+    @Column(name = "email")
     private String email;
 
-
-    // define constructors
     public Employee() {
-
     }
 
     public Employee(String firstName, String lastName, String email) {
@@ -40,8 +34,6 @@ public class Employee {
         this.lastName = lastName;
         this.email = email;
     }
-
-    // define getter/setter
 
     public int getId() {
         return id;
@@ -75,7 +67,6 @@ public class Employee {
         this.email = email;
     }
 
-    // define toString
     @Override
     public String toString() {
         return "Employee{" +
@@ -86,11 +77,6 @@ public class Employee {
                 '}';
     }
 }
-
-
-
-
-
 
 
 

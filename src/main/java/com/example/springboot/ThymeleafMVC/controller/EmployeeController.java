@@ -5,11 +5,14 @@ import com.example.springboot.ThymeleafMVC.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/employees")
@@ -24,24 +27,14 @@ public class EmployeeController {
 
     @GetMapping("/list")
     public String listEmployees(Model model) {
-
-        // get the entire list of employees
         List<Employee> listOfEmployees = employeeService.findAll();
-
-        // add to the model
         model.addAttribute("employees", listOfEmployees);
-
-        // return the html file
         return "employees/list-employees";
     }
 
     @GetMapping("/showFormForAdd")
     public String showFormForAdd(Model model) {
-
-        Employee employee = new Employee();
-
-        model.addAttribute("employee", employee);
-
+        model.addAttribute("employee", new Employee());
         return "employees/employee-form";
     }
 

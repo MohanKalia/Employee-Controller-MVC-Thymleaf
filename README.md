@@ -1,122 +1,66 @@
 # Employee Directory
 
-A Java-based employee management web application built with **Spring Boot**, demonstrating layered MVC architecture, server-side rendering with Thymeleaf, and database persistence using Spring Data JPA and MySQL.
+Small Spring Boot application for managing employees. It uses Thymeleaf for the pages, Spring Data JPA for persistence, and MySQL for the database.
 
-## Features
+The app currently supports:
 
-- View employees, sorted alphabetically by last name.
-- Add new employees.
-- Update existing employee information.
-- Delete employees with confirmation.
-- Persist employee records in a MySQL database.
+- listing employees by last name
+- adding and editing employees
+- deleting employees after confirmation
+- basic validation for names and email addresses
 
-## Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| Java 25 | Programming language |
-| Spring Boot 4 | Application framework |
-| Spring MVC | Web request handling |
-| Thymeleaf | Server-side HTML rendering |
-| Spring Data JPA | Data access and persistence |
-| Hibernate | ORM |
-| MySQL | Relational database |
-| Maven | Build and dependency management |
-
-## Architecture
-
-The application follows a layered architecture:
-
-- **Controller:** Handles HTTP requests and coordinates application flow.
-- **Service:** Encapsulates employee-related business operations.
-- **Repository:** Provides database access through Spring Data JPA.
-- **Entity:** Maps the Employee model to the database.
-
-## Getting Started
-
-### Prerequisites
+## Requirements
 
 - Java 25
-- MySQL Server
+- MySQL
 - Git
 
-### 1. Clone the repository
+## Running it
+
+Clone the repository and open the project directory:
 
 ```bash
 git clone https://github.com/MohanKalia/Employee-Controller-MVC-Thymleaf.git
 cd Employee-Controller-MVC-Thymleaf
 ```
 
-### 2. Set up the database
-
-Execute the provided SQL script:
+Create the database and sample data with:
 
 ```bash
 mysql -u YOUR_MYSQL_USER -p < sql-scripts/employee-directory.sql
 ```
 
-This creates the `employee_directory` database and inserts sample employee records.
+The script recreates the `employee` table, so running it again removes any employee records that were added through the app.
 
-**Note:** The SQL script drops and recreates the `employee` table. Running it again will delete existing employee data.
-
-### 3. Configure environment variables
-
-Create a `.env` file in the project root:
+Set the database credentials in a `.env` file in the project directory:
 
 ```dotenv
 DATABASE_USERNAME=your_mysql_username
 DATABASE_PASSWORD=your_mysql_password
 ```
 
-Keep your credentials private. The `.env` file is excluded from version control.
+The credentials are read by `application.properties` and should not be committed.
 
-### 4. Run the application
-
-**Linux / macOS**
+Start the application with:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-**Windows**
+On Windows, use `mvnw.cmd spring-boot:run` instead.
 
-```bat
-mvnw.cmd spring-boot:run
-```
+Once it has started, visit <http://localhost:8080/employees/list>.
 
-Open the application:
+## Tests
 
-`http://localhost:8080/employees/list`
-
-## Testing
-
-Run the tests:
+Run the tests with:
 
 ```bash
 ./mvnw test
 ```
 
-The employee validation tests run without a database. The application context test starts Spring Boot and uses the configured MySQL database, so MySQL and the environment variables above need to be available when running the full test suite.
+The validation tests do not need a database. The Spring context test uses the configured MySQL connection.
 
-## Project Structure
+## Project layout
 
-```text
-src/
-├── main/
-│   ├── java/
-│   │   └── .../
-│   │       ├── controller/
-│   │       ├── service/
-│   │       ├── dao/
-│   │       └── entity/
-│   └── resources/
-│       └── templates/
-│           └── employees/
-└── test/
-sql-scripts/
-└── employee-directory.sql
-```
-
-## Learning Objectives
-
-This project explores core Java backend development concepts, including dependency injection, MVC request handling, service-layer design, ORM-based persistence, database integration, and server-side rendering.
+The Java code is split into a controller, service, repository, and entity. The Thymeleaf templates are under `src/main/resources/templates/employees`, and the database setup script is in `sql-scripts`.
