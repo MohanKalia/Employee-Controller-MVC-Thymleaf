@@ -4,10 +4,11 @@ Small Spring Boot application for managing employees. It uses Thymeleaf for the 
 
 The app currently supports:
 
-- listing employees by last name
+- searching by first name, last name, or email and browsing results by last name
 - adding and editing employees
 - deleting employees after confirmation
-- basic validation for names and email addresses
+- validating required fields, email format, and database field lengths
+- signing in with a configured administrator account
 
 ## Requirements
 
@@ -32,14 +33,16 @@ mysql -u YOUR_MYSQL_USER -p < sql-scripts/employee-directory.sql
 
 The script recreates the `employee` table, so running it again removes any employee records that were added through the app.
 
-Set the database credentials in a `.env` file in the project directory:
+Set the database and directory credentials in a `.env` file in the project directory:
 
 ```dotenv
 DATABASE_USERNAME=your_mysql_username
 DATABASE_PASSWORD=your_mysql_password
+DIRECTORY_ADMIN_USERNAME=admin
+DIRECTORY_ADMIN_PASSWORD=choose_a_strong_password
 ```
 
-The credentials are read by `application.properties` and should not be committed.
+Use plain `KEY=value` lines without shell quotes. You can also set these values as environment variables. The administrator password is required, and the username defaults to `admin`. Keep `.env` out of version control. Use HTTPS if you run the directory outside localhost.
 
 Start the application with:
 
@@ -49,7 +52,7 @@ Start the application with:
 
 On Windows, use `mvnw.cmd spring-boot:run` instead.
 
-Once it has started, visit <http://localhost:8080/employees/list>.
+Once it has started, visit <http://localhost:8080/employees/list> and sign in with the directory credentials.
 
 ## Tests
 
@@ -59,7 +62,7 @@ Run the tests with:
 ./mvnw test
 ```
 
-The validation tests do not need a database. The Spring context test uses the configured MySQL connection.
+The integration tests use an in-memory H2 database and isolated test credentials. They exercise login, authorization, CSRF protection, validation, CRUD, and search through Spring MVC. MySQL is only needed to run the application.
 
 ## Project layout
 

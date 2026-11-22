@@ -4,46 +4,69 @@
     <meta charset="UTF-8">
     <title>Employee Directory</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
 </head>
 <body>
 
-<div class="container">
-    <h3>Employee Directory</h3>
-    <hr>
-    <table class="table table-bordered table-striped" th:if="${!employees.isEmpty()}">
-        <thead class="table-dark">
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-        <th>Action</th>
-        </thead>
+<main class="container py-4">
+    <header class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+        <h1 class="h3 mb-0">Employee Directory</h1>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-outline-secondary">Sign out</button>
+        </form>
+    </header>
 
-        <tbody>
-        <tr th:each="i: ${employees}">
-            <td th:text="${i.firstName}"></td>
-            <td th:text="${i.lastName}"></td>
-            <td th:text="${i.email}"></td>
-            <td>
-                <a th:href="@{/employees/showFormForUpdate(employeeId=${i.id})}"
-                   class="btn btn-primary btn-sm">
-                    Update
-                </a>
-                <form th:action="@{/employees/delete(employeeId=${i.id})}" method="post"
-                      style="display:inline"
-                      onsubmit="return confirm('Are you sure you want to delete this employee?')">
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
+    <form th:action="@{/employees/list}" method="get" class="mb-3" role="search">
+        <label class="form-label" for="query">Search by name or email</label>
+        <div class="d-flex flex-wrap gap-2">
+            <input class="form-control w-auto" type="search" id="query" name="q" th:value="${query}">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+            <a th:if="${!query.isEmpty()}" th:href="@{/employees/list}" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </form>
+    <a th:href="@{/employees/showFormForAdd}" class="btn btn-primary mb-3">Add employee</a>
 
-    </table>
-    <p th:if="${employees.isEmpty()}" class="alert alert-info">
-        No employees found. Add an employee to get started.
+    <div class="table-responsive" th:if="${employees.hasContent()}">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">First name</th>
+                <th scope="col">Last name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="employee : ${employees.content}">
+                <td th:text="${employee.firstName}"></td>
+                <td th:text="${employee.lastName}"></td>
+                <td th:text="${employee.email}"></td>
+                <td>
+                    <a th:href="@{/employees/showFormForUpdate(employeeId=${employee.id})}"
+                       class="btn btn-outline-primary btn-sm">Edit</a>
+                    <form th:action="@{/employees/delete}" method="post" class="d-inline"
+                          onsubmit="return confirm('Are you sure you want to delete this employee?')">
+                        <input type="hidden" name="employeeId" th:value="${employee.id}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p th:unless="${employees.hasContent()}" class="alert alert-info"
+       th:text="${query.isEmpty() ? 'No employees yet. Add an employee to get started.' : 'No employees match your search.'}">
+        No employees found.
     </p>
-    <a th:href="@{/employees/showFormForAdd}" class="btn btn-primary btn-sm mb-3">Add employee</a>
-</div>
+    <nav th:if="${employees.totalPages > 1}" aria-label="Employee list pages" class="d-flex flex-wrap align-items-center gap-2">
+        <a th:if="${employees.hasPrevious()}" class="btn btn-outline-secondary btn-sm"
+           th:href="@{/employees/list(q=${query},page=${employees.number})}">Previous</a>
+        <span th:text="|Page ${employees.number + 1} of ${employees.totalPages}|"></span>
+        <a th:if="${employees.hasNext()}" class="btn btn-outline-secondary btn-sm"
+           th:href="@{/employees/list(q=${query},page=${employees.number + 2})}">Next</a>
+    </nav>
+</main>
 </body>
 </html>

@@ -1,6 +1,6 @@
 package com.example.springboot.ThymeleafMVC;
 
-import com.example.springboot.ThymeleafMVC.entity.Employee;
+import com.example.springboot.ThymeleafMVC.controller.EmployeeForm;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -8,7 +8,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EmployeeValidationTests {
@@ -29,14 +32,16 @@ class EmployeeValidationTests {
 
     @Test
     void rejectsBlankNamesAndEmail() {
-        Employee employee = new Employee(" ", "", "");
+        EmployeeForm employee = new EmployeeForm(" ", "", "");
 
-        assertFalse(validator.validate(employee).isEmpty());
+        assertEquals(Set.of("firstName", "lastName", "email"), validator.validate(employee).stream()
+                .map(error -> error.getPropertyPath().toString())
+                .collect(Collectors.toSet()));
     }
 
     @Test
     void rejectsInvalidEmail() {
-        Employee employee = new Employee("Sam", "Taylor", "not-an-email");
+        EmployeeForm employee = new EmployeeForm("Sam", "Taylor", "not-an-email");
 
         assertTrue(validator.validate(employee).stream()
                 .anyMatch(error -> error.getPropertyPath().toString().equals("email")));
@@ -44,7 +49,7 @@ class EmployeeValidationTests {
 
     @Test
     void acceptsValidEmployee() {
-        Employee employee = new Employee("Sam", "Taylor", "sam.taylor@example.com");
+        EmployeeForm employee = new EmployeeForm("Sam", "Taylor", "sam.taylor@example.com");
 
         assertTrue(validator.validate(employee).isEmpty());
     }
