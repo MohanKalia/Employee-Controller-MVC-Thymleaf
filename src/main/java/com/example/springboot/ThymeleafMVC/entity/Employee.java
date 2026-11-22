@@ -1,29 +1,25 @@
 package com.example.springboot.ThymeleafMVC.entity;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name="employee")
 public class Employee {
 
+    public static final int FIELD_LENGTH = 45;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
-    @NotBlank(message = "First name is required")
-    @Column(name = "first_name")
+    @Column(name = "first_name", length = FIELD_LENGTH)
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
-    @Column(name = "last_name")
+    @Column(name = "last_name", length = FIELD_LENGTH)
     private String lastName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please enter a valid email address")
-    @Column(name = "email")
+    @Column(name = "email", length = FIELD_LENGTH)
     private String email;
 
     public Employee() {
@@ -37,10 +33,6 @@ public class Employee {
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getFirstName() {

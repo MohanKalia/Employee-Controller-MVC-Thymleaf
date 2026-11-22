@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/directory :: head('Page not found')}"><title>Page not found</title></head>
+<body>
+<div class="layout">
+    <div th:replace="~{fragments/directory :: sidebar(false)}"></div>
+    <div class="workspace">
+        <div th:replace="~{fragments/directory :: topbar}"></div>
+        <main class="content narrow-content" id="main-content" tabindex="-1">
+            <div class="panel empty-state error-state">
+                <span class="state-icon" aria-hidden="true"><span class="icon icon-search"></span></span>
+                <h1>Page not found</h1>
+                <p>The requested page or employee could not be found.</p>
+                <a class="button button-primary" th:href="@{/employees/list}">Back to employees</a>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

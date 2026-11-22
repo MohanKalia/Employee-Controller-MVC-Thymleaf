@@ -2,66 +2,94 @@ package com.example.springboot.ThymeleafMVC.controller;
 
 import com.example.springboot.ThymeleafMVC.entity.Employee;
 import com.example.springboot.ThymeleafMVC.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import java.util.List;
-import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/employees")
 public class EmployeeController {
 
-    private EmployeeService employeeService;
+    private static final int PAGE_SIZE = 10;
+    private static final String FORM_VIEW = "employees/employee-form";
+    private static final String LIST_REDIRECT = "redirect:/employees/list";
 
-    @Autowired
+    private final EmployeeService employeeService;
+
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
 
     @GetMapping("/list")
-    public String listEmployees(Model model) {
-        List<Employee> listOfEmployees = employeeService.findAll();
-        model.addAttribute("employees", listOfEmployees);
+    public String listEmployees(@RequestParam(defaultValue = "") String q,
+                                @RequestParam(defaultValue = "1") int page,
+                                Model model, RedirectAttributes redirect) {
+        if (page < 1 || page - 1 > Integer.MAX_VALUE / PAGE_SIZE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid page number");
+        }
+        String query = q.strip();
+        Page<Employee> employees = employeeService.search(query,
+                PageRequest.of(page - 1, PAGE_SIZE, Sort.by("lastName", "firstName", "id")));
+        int lastPage = Math.max(1, employees.getTotalPages());
+        if (page > lastPage) {
+            redirect.addAttribute("page", lastPage);
+            redirect.addAttribute("q", query);
+            return LIST_REDIRECT;
+        }
+
+        model.addAttribute("employees", employees);
+        model.addAttribute("query", query);
         return "employees/list-employees";
     }
 
     @GetMapping("/showFormForAdd")
     public String showFormForAdd(Model model) {
-        model.addAttribute("employee", new Employee());
-        return "employees/employee-form";
-    }
-
-    @PostMapping("/save")
-    public String saveEmployee(@Valid @ModelAttribute("employee") Employee employee,
-                               BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "employees/employee-form";
-        }
-
-        employeeService.save(employee);
-
-        return "redirect:/employees/list";
+        model.addAttribute("employee", new EmployeeForm("", "", ""));
+        return FORM_VIEW;
     }
 
     @GetMapping("/showFormForUpdate")
-    public String showFormForUpdate(@RequestParam("employeeId")int theId, Model model) {
+    public String showFormForUpdate(@RequestParam int employeeId, Model model) {
+        model.addAttribute("employee", EmployeeForm.from(employeeService.findById(employeeId)));
+        model.addAttribute("employeeId", employeeId);
+        return FORM_VIEW;
+    }
 
-        Employee temp = employeeService.findById(theId);
+    @PostMapping("/save")
+    public String saveEmployee(@RequestParam(required = false) Integer employeeId,
+                               @Valid @ModelAttribute("employee") EmployeeForm employee,
+                               BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            if (employeeId != null) {
+                employeeService.findById(employeeId);
+                model.addAttribute("employeeId", employeeId);
+            }
+            return FORM_VIEW;
+        }
 
-        model.addAttribute("employee", temp);
-        return "employees/employee-form";
+        if (employeeId == null) {
+            employeeService.create(employee.firstName(), employee.lastName(), employee.email());
+        } else {
+            employeeService.update(employeeId, employee.firstName(), employee.lastName(), employee.email());
+        }
+        return LIST_REDIRECT;
     }
 
     @PostMapping("/delete")
-    public String deleteEmployee(@RequestParam("employeeId") int theId) {
-        employeeService.deleteById(theId);
-        return "redirect:/employees/list";
+    public String deleteEmployee(@RequestParam int employeeId) {
+        employeeService.deleteById(employeeId);
+        return LIST_REDIRECT;
     }
 }

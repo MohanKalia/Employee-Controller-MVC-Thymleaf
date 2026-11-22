@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title th:text="|${title} · Employee Directory|">Employee Directory</title>
+    <script th:src="@{/js/directory.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/directory.css}">
+</head>
+<body>
+<div th:fragment="sidebar(current)">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <aside class="sidebar">
+        <a class="brand" th:href="@{/employees/list}">
+            <span class="brand-mark" aria-hidden="true"><span class="icon icon-people"></span></span>
+            <span>Employee<br class="brand-break"> Directory</span>
+        </a>
+        <nav aria-label="Main navigation" class="sidebar-nav">
+            <a class="sidebar-link" th:href="@{/employees/list}" th:attr="aria-current=${current ? 'page' : null}">
+                <span class="icon icon-list" aria-hidden="true"></span>
+                Employees
+            </a>
+        </nav>
+        <form class="signout-form" th:action="@{/logout}" method="post">
+            <button class="sidebar-link" type="submit">
+                <span class="icon icon-exit" aria-hidden="true">↪</span>
+                Sign out
+            </button>
+        </form>
+    </aside>
+</div>
+<div th:fragment="topbar" class="topbar">
+    <button class="theme-toggle" type="button" aria-pressed="false" data-theme-toggle hidden>
+        <span class="icon icon-moon" aria-hidden="true"></span>
+        <span>Dark mode</span>
+        <span class="theme-track" aria-hidden="true"></span>
+    </button>
+</div>
+</body>
+</html>
