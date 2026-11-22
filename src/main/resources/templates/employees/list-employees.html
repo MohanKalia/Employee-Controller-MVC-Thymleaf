@@ -1,72 +1,120 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Employee Directory</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
-</head>
+<head th:replace="~{fragments/directory :: head('Employees')}"><title>Employees</title></head>
 <body>
+<div class="layout">
+    <div th:replace="~{fragments/directory :: sidebar(true)}"></div>
+    <div class="workspace">
+        <div th:replace="~{fragments/directory :: topbar}"></div>
+        <main class="content" id="main-content" tabindex="-1">
+            <header class="page-heading">
+                <div>
+                    <h1>Employees</h1>
+                    <p>Find and manage employee contact details.</p>
+                </div>
+                <a class="button button-primary" th:href="@{/employees/showFormForAdd}">
+                    <span class="icon icon-plus" aria-hidden="true"></span>
+                    Add employee
+                </a>
+            </header>
 
-<main class="container py-4">
-    <header class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-        <h1 class="h3 mb-0">Employee Directory</h1>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn btn-outline-secondary">Sign out</button>
-        </form>
-    </header>
-
-    <form th:action="@{/employees/list}" method="get" class="mb-3" role="search">
-        <label class="form-label" for="query">Search by name or email</label>
-        <div class="d-flex flex-wrap gap-2">
-            <input class="form-control w-auto" type="search" id="query" name="q" th:value="${query}">
-            <button class="btn btn-outline-primary" type="submit">Search</button>
-            <a th:if="${!query.isEmpty()}" th:href="@{/employees/list}" class="btn btn-outline-secondary">Clear</a>
-        </div>
-    </form>
-    <a th:href="@{/employees/showFormForAdd}" class="btn btn-primary mb-3">Add employee</a>
-
-    <div class="table-responsive" th:if="${employees.hasContent()}">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-            <tr>
-                <th scope="col">First name</th>
-                <th scope="col">Last name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="employee : ${employees.content}">
-                <td th:text="${employee.firstName}"></td>
-                <td th:text="${employee.lastName}"></td>
-                <td th:text="${employee.email}"></td>
-                <td>
-                    <a th:href="@{/employees/showFormForUpdate(employeeId=${employee.id})}"
-                       class="btn btn-outline-primary btn-sm">Edit</a>
-                    <form th:action="@{/employees/delete}" method="post" class="d-inline"
-                          onsubmit="return confirm('Are you sure you want to delete this employee?')">
-                        <input type="hidden" name="employeeId" th:value="${employee.id}">
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+            <section class="panel directory" aria-labelledby="directory-title">
+                <div class="directory-toolbar">
+                    <div class="directory-title">
+                        <h2 id="directory-title" th:text="${query.isEmpty() ? 'All employees' : 'Search results'}">All employees</h2>
+                        <span class="count" th:text="${employees.totalElements}">0</span>
+                    </div>
+                    <form class="search-form" th:action="@{/employees/list}" method="get" role="search">
+                        <div class="search-input">
+                            <label class="visually-hidden" for="query">Search by name or email</label>
+                            <span class="icon icon-search" aria-hidden="true"></span>
+                            <input type="search" id="query" name="q" th:value="${query}" placeholder="Search name or email">
+                        </div>
+                        <button class="button button-secondary" type="submit">Search</button>
+                        <a class="button button-plain" th:if="${!query.isEmpty()}" th:href="@{/employees/list}">Clear</a>
                     </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                </div>
 
-    <p th:unless="${employees.hasContent()}" class="alert alert-info"
-       th:text="${query.isEmpty() ? 'No employees yet. Add an employee to get started.' : 'No employees match your search.'}">
-        No employees found.
-    </p>
-    <nav th:if="${employees.totalPages > 1}" aria-label="Employee list pages" class="d-flex flex-wrap align-items-center gap-2">
-        <a th:if="${employees.hasPrevious()}" class="btn btn-outline-secondary btn-sm"
-           th:href="@{/employees/list(q=${query},page=${employees.number})}">Previous</a>
-        <span th:text="|Page ${employees.number + 1} of ${employees.totalPages}|"></span>
-        <a th:if="${employees.hasNext()}" class="btn btn-outline-secondary btn-sm"
-           th:href="@{/employees/list(q=${query},page=${employees.number + 2})}">Next</a>
-    </nav>
-</main>
+                <table class="employee-table" th:if="${employees.hasContent()}" aria-labelledby="directory-title">
+                    <thead>
+                    <tr>
+                        <th scope="col"><span class="desktop-only">Name</span><span class="mobile-only">Employee</span></th>
+                        <th scope="col" class="email-column">Email</th>
+                        <th scope="col" class="actions-column">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="employee : ${employees.content}"
+                        th:with="fullName=${#strings.trim((employee.firstName ?: '') + ' ' + (employee.lastName ?: ''))},
+                                 name=${#strings.isEmpty(fullName) ? 'Unnamed employee' : fullName},
+                                 email=${#strings.isEmpty(employee.email) ? 'No email on file' : employee.email}">
+                        <th scope="row">
+                            <div class="employee-name">
+                                <span class="avatar" aria-hidden="true"><span class="icon icon-person"></span></span>
+                                <div>
+                                    <span class="name" th:text="${name}">Employee name</span>
+                                    <span class="mobile-only mobile-email" th:text="${email}">Employee email</span>
+                                </div>
+                            </div>
+                        </th>
+                        <td class="email-column" th:text="${email}">Employee email</td>
+                        <td class="actions-column">
+                            <div class="row-actions">
+                                <a class="button button-small button-secondary"
+                                   th:href="@{/employees/showFormForUpdate(employeeId=${employee.id})}"
+                                   th:attr="aria-label=|Edit ${name}|">Edit</a>
+                                <form th:action="@{/employees/delete}" method="post" data-delete-form th:attr="data-employee-name=${name}">
+                                    <input type="hidden" name="employeeId" th:value="${employee.id}">
+                                    <button class="button button-small button-danger-quiet" type="button" data-delete-open
+                                            th:attr="aria-label=|Delete ${name}|" hidden>Delete</button>
+                                    <details data-delete-fallback>
+                                        <summary class="button button-small button-danger-quiet"
+                                                 th:attr="aria-label=|Delete ${name}|">Delete</summary>
+                                        <p th:text="|Delete ${name} from the directory?|">Delete this employee?</p>
+                                        <button class="button button-small button-danger" type="submit">Confirm delete</button>
+                                    </details>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="empty-state" th:unless="${employees.hasContent()}">
+                    <span class="state-icon" aria-hidden="true">
+                        <span class="icon" th:classappend="${query.isEmpty() ? 'icon-people' : 'icon-search'}"></span>
+                    </span>
+                    <h3 th:text="${query.isEmpty() ? 'No employees yet' : 'No employees match your search.'}">No employees yet</h3>
+                    <p th:if="${query.isEmpty()}">Use Add employee to create the first record.</p>
+                    <p th:unless="${query.isEmpty()}">Try a different name or email address.</p>
+                </div>
+
+                <footer class="directory-footer" th:if="${employees.hasContent()}">
+                    <p th:text="|Showing ${employees.pageable.offset + 1}–${employees.pageable.offset + employees.numberOfElements} of ${employees.totalElements}|">Showing 1–10 of 10</p>
+                    <nav class="pagination" th:if="${employees.totalPages > 1}" aria-label="Employee list pages">
+                        <a th:if="${employees.hasPrevious()}" class="button button-small button-secondary"
+                           th:href="@{/employees/list(q=${query},page=${employees.number})}">Previous</a>
+                        <span class="button button-small button-secondary unavailable" th:unless="${employees.hasPrevious()}"
+                              aria-disabled="true">Previous</span>
+                        <span th:text="|Page ${employees.number + 1} of ${employees.totalPages}|">Page 1 of 2</span>
+                        <a th:if="${employees.hasNext()}" class="button button-small button-secondary"
+                           th:href="@{/employees/list(q=${query},page=${employees.number + 2})}">Next</a>
+                        <span class="button button-small button-secondary unavailable" th:unless="${employees.hasNext()}"
+                              aria-disabled="true">Next</span>
+                    </nav>
+                </footer>
+            </section>
+        </main>
+    </div>
+</div>
+
+<dialog class="delete-dialog" data-delete-dialog aria-labelledby="delete-title" aria-describedby="delete-description">
+    <h2 id="delete-title">Delete employee?</h2>
+    <p id="delete-description"><strong data-delete-name></strong> will be removed from the directory. This action is permanent.</p>
+    <form method="dialog" class="dialog-actions">
+        <button class="button button-secondary" value="cancel" autofocus>Cancel</button>
+        <button class="button button-danger" value="delete">Delete employee</button>
+    </form>
+</dialog>
 </body>
 </html>

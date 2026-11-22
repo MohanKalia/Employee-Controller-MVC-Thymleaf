@@ -1,48 +1,61 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Employee Directory</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX" crossorigin="anonymous">
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:with="pageTitle=${employeeId == null ? 'Add employee' : 'Edit employee'}">
+<head th:replace="~{fragments/directory :: head(${pageTitle})}"><title>Employee details</title></head>
 <body>
+<div class="layout">
+    <div th:replace="~{fragments/directory :: sidebar(false)}"></div>
+    <div class="workspace">
+        <div th:replace="~{fragments/directory :: topbar}"></div>
+        <main class="content narrow-content" id="main-content" tabindex="-1">
+            <a class="back-link" th:href="@{/employees/list}">Back to employees</a>
+            <header class="page-heading">
+                <div>
+                    <h1 th:text="${pageTitle}">Add employee</h1>
+                    <p th:text="${employeeId == null ? 'Enter the contact details for a new employee.' : 'Update this employee’s contact details.'}">Enter the contact details for a new employee.</p>
+                </div>
+            </header>
 
-<div class="container">
-
-    <h1 class="h3">Employee Directory</h1>
-    <hr>
-
-    <h2 class="h4 mb-4" th:text="${employeeId == null ? 'Add employee' : 'Edit employee'}">Add employee</h2>
-
-    <form action="#" th:action="@{/employees/save}"
-          th:object="${employee}" method="post">
-        <input th:if="${employeeId != null}" type="hidden" name="employeeId" th:value="${employeeId}">
-        <label for="firstName" class="form-label">First name</label>
-        <input type="text" th:field="*{firstName}"
-               class="form-control mb-2" maxlength="45" required placeholder="First Name">
-        <div th:if="${#fields.hasErrors('firstName')}"
-             role="alert" th:errors="*{firstName}" class="text-danger mb-3"></div>
-        <label for="lastName" class="form-label">Last name</label>
-        <input type="text" th:field="*{lastName}"
-               class="form-control mb-2" maxlength="45" required placeholder="Last Name">
-        <div th:if="${#fields.hasErrors('lastName')}"
-             role="alert" th:errors="*{lastName}" class="text-danger mb-3"></div>
-        <label for="email" class="form-label">Email</label>
-        <input type="email" th:field="*{email}"
-               class="form-control mb-2" maxlength="45" required placeholder="Email">
-        <div th:if="${#fields.hasErrors('email')}"
-             role="alert" th:errors="*{email}" class="text-danger mb-3"></div>
-
-        <button type="submit" class="btn btn-info">Save</button>
-
-    </form>
-    <hr>
-    <a th:href="@{/employees/list}">Back to Employees List</a>
-
+            <form class="panel editor" th:action="@{/employees/save}" th:object="${employee}" method="post"
+                  aria-labelledby="details-title">
+                <input th:if="${employeeId != null}" type="hidden" name="employeeId" th:value="${employeeId}">
+                <div class="editor-body">
+                    <div class="editor-heading">
+                        <h2 id="details-title">Contact details</h2>
+                        <p>All fields are required.</p>
+                    </div>
+                    <p class="form-alert" role="alert" th:if="${#fields.hasAnyErrors()}">Check the highlighted fields and save again.</p>
+                    <div class="name-fields">
+                        <div class="field">
+                            <label for="firstName">First name</label>
+                            <input type="text" th:field="*{firstName}" autocomplete="given-name" maxlength="45" required
+                                   th:attr="aria-invalid=${#fields.hasErrors('firstName') ? 'true' : null},
+                                            aria-describedby=${#fields.hasErrors('firstName') ? 'firstName-error' : null}">
+                            <p class="field-error" id="firstName-error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></p>
+                        </div>
+                        <div class="field">
+                            <label for="lastName">Last name</label>
+                            <input type="text" th:field="*{lastName}" autocomplete="family-name" maxlength="45" required
+                                   th:attr="aria-invalid=${#fields.hasErrors('lastName') ? 'true' : null},
+                                            aria-describedby=${#fields.hasErrors('lastName') ? 'lastName-error' : null}">
+                            <p class="field-error" id="lastName-error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="email">Email address</label>
+                        <input type="email" th:field="*{email}" autocomplete="email" maxlength="45" required
+                               th:attr="aria-invalid=${#fields.hasErrors('email') ? 'true' : null},
+                                        aria-describedby=${#fields.hasErrors('email') ? 'email-error' : null}">
+                        <p class="field-error" id="email-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                    </div>
+                </div>
+                <div class="editor-actions">
+                    <a class="button button-secondary" th:href="@{/employees/list}">Cancel</a>
+                    <button class="button button-primary" type="submit"
+                            th:text="${employeeId == null ? 'Add employee' : 'Save changes'}">Add employee</button>
+                </div>
+            </form>
+        </main>
+    </div>
 </div>
-
-
 </body>
 </html>

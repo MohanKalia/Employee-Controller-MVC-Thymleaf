@@ -2,6 +2,8 @@ package com.example.springboot.ThymeleafMVC;
 
 import com.example.springboot.ThymeleafMVC.dao.EmployeeRepository;
 import com.example.springboot.ThymeleafMVC.entity.Employee;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +113,12 @@ class EmployeeDirectoryIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("employeeId", employee.getId()))
                 .andExpect(model().attributeHasFieldErrors("employee", "firstName", "email"))
-                .andExpect(content().string(containsString("First name must be at most 45 characters")));
+                .andExpect(content().string(containsString("First name must be at most 45 characters")))
+                .andExpect(content().string(containsString("aria-invalid=\"true\"")))
+                .andExpect(content().string(containsString("aria-describedby=\"firstName-error\"")))
+                .andExpect(content().string(containsString("id=\"firstName-error\"")))
+                .andExpect(content().string(containsString("aria-describedby=\"email-error\"")))
+                .andExpect(content().string(containsString("Save changes")));
 
         assertThat(employees.findById(employee.getId()).orElseThrow().getFirstName()).isEqualTo("Sam");
     }
@@ -155,5 +162,54 @@ class EmployeeDirectoryIntegrationTests {
                 .andExpect(redirectedUrl("/employees/list?page=2&q=Taylor"));
         mvc.perform(get("/employees/list").param("q", "%"))
                 .andExpect(content().string(containsString("No employees match your search.")));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void directoryRendersContextRelativeAssetsAndNavigation() throws Exception {
+        mvc.perform(get("/staff/employees/list").contextPath("/staff"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("href=\"/staff/css/directory.css\"")))
+                .andExpect(content().string(containsString("src=\"/staff/js/directory.js\"")))
+                .andExpect(content().string(containsString("action=\"/staff/logout\"")))
+                .andExpect(content().string(containsString("href=\"/staff/employees/showFormForAdd\"")))
+                .andExpect(content().string(containsString("No employees yet")))
+                .andExpect(content().string(not(containsString("<table"))));
+
+        mvc.perform(get("/css/directory.css")).andExpect(status().isOk());
+        mvc.perform(get("/js/directory.js")).andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void directoryEscapesEmployeeDataAndHandlesMissingContactDetails() throws Exception {
+        Employee employee = employees.save(new Employee("<Sam & Co>", null, null));
+        employees.save(new Employee(null, null, null));
+
+        mvc.perform(get("/employees/list"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("&lt;Sam &amp; Co&gt;")))
+                .andExpect(content().string(not(containsString("<Sam & Co>"))))
+                .andExpect(content().string(containsString("No email on file")))
+                .andExpect(content().string(containsString("Unnamed employee")))
+                .andExpect(content().string(containsString("data-delete-fallback")))
+                .andExpect(content().string(containsString("action=\"/employees/delete\"")));
+
+        mvc.perform(get("/employees/showFormForUpdate").param("employeeId", String.valueOf(employee.getId())))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("value=\"&lt;Sam &amp; Co&gt;\"")));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void notFoundPageOffersAnAccessibleWayBackToTheDirectory() throws Exception {
+        mvc.perform(get("/error").accept("text/html").with(request -> {
+                    request.setDispatcherType(DispatcherType.ERROR);
+                    request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 404);
+                    return request;
+                }))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString("<h1>Page not found</h1>")))
+                .andExpect(content().string(containsString("href=\"/employees/list\">Back to employees")));
     }
 }
