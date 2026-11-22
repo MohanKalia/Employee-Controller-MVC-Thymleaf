@@ -1,17 +1,18 @@
 package com.example.springboot.ThymeleafMVC.service;
 
 import com.example.springboot.ThymeleafMVC.entity.Employee;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface EmployeeService {
 
-    List<Employee> findAll();
+    Page<Employee> search(String query, Pageable pageable);
 
-    Employee findById(int theId);
+    Employee findById(int id);
 
-    Employee save(Employee theEmployee);
+    void create(String firstName, String lastName, String email);
 
-    void deleteById(int theId);
+    void update(int id, String firstName, String lastName, String email);
 
+    void deleteById(int id);
 }
